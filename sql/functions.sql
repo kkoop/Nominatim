@@ -1525,7 +1525,8 @@ BEGIN
             -- For an admin centre we also want a name match - still not perfect, for example 'new york, new york'
             -- But that can be fixed by explicitly setting the label in the data
             IF make_standard_name(NEW.name->'name') = make_standard_name(linkedPlacex.name->'name') 
-              AND NEW.rank_address = linkedPlacex.rank_address THEN
+--              AND NEW.rank_address = linkedPlacex.rank_address 
+              THEN
 
               -- If we don't already have one use this as the centre point of the geometry
               IF NEW.centroid IS NULL THEN
