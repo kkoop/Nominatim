@@ -1,4 +1,4 @@
 [submodule "osm2pgsql"]
 	path = osm2pgsql
-	url = https://github.com/openstreetmap/osm2pgsql.git
+	url = https://github.com/kkoop/osm2pgsql.git
     ignore = dirty
