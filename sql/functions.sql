@@ -2883,7 +2883,8 @@ DECLARE
   p RECORD;
 BEGIN
   FOR p IN 
-    SELECT landuse.place_id AS place1, MAX(place.place_id) AS place2, array_agg(place.name) AS newname, MIN(place.rank_address) AS newrank
+    SELECT landuse.place_id AS lplace_id, MAX(place.place_id) AS pplace_id, 
+      array_agg(place.name) AS newname, MIN(place.rank_address) AS new_rank_address, MIN(place.admin_level) AS new_admin_level
     FROM placex AS landuse
     INNER JOIN placex AS place ON ST_Contains(landuse.geometry, place.geometry)
     WHERE landuse.name->'name' IS NULL AND landuse.class='landuse' AND landuse.type='residential' 
@@ -2891,9 +2892,10 @@ BEGIN
     GROUP BY landuse.place_id
     HAVING COUNT(place.place_id)=1
   LOOP
-    RAISE NOTICE 'landuse:residential % contains % (%)', p.place1, p.place2, p.newname[1];
-    UPDATE placex SET name=p.newname[1],rank_address=newrank WHERE place_id=p.place1;
-    DELETE FROM placex WHERE place_id=p.place2;
+    RAISE NOTICE 'landuse:residential % contains % (%)', p.lplace_id, p.pplace_id, p.newname[1];
+    UPDATE placex SET name=p.newname[1],rank_address=p.new_rank_address,admin_level=p.new_admin_level WHERE place_id=p.lplace_id;
+--    DELETE FROM placex WHERE place_id=p.pplace_id;
+    UPDATE placex SET name=NULL WHERE place_id=p.pplace_id;
   END LOOP;
   RETURN TRUE;
 END;
