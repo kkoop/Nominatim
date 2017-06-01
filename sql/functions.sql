@@ -2876,3 +2876,25 @@ BEGIN
 END;
 $$
 LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION create_names_for_landuse() RETURNS BOOLEAN
+  AS $$
+DECLARE
+  p RECORD;
+BEGIN
+  FOR p IN 
+    SELECT landuse.place_id AS place1, MAX(place.place_id) AS place2, array_agg(place.name) AS newname, MIN(place.rank_address) AS newrank
+    FROM placex AS landuse
+    INNER JOIN placex AS place ON ST_Contains(landuse.geometry, place.geometry)
+    WHERE landuse.name->'name' IS NULL AND landuse.class='landuse' AND landuse.type='residential' 
+      AND place.class='place' AND place.type IN ('city','town','village','hamlet') AND place.osm_type='N'
+    GROUP BY landuse.place_id
+    HAVING COUNT(place.place_id)=1
+  LOOP
+    RAISE NOTICE 'landuse:residential % contains % (%)', p.place1, p.place2, p.newname[1];
+    UPDATE placex SET name=p.newname[1],rank_address=newrank WHERE place_id=p.place1;
+    DELETE FROM placex WHERE place_id=p.place2;
+  END LOOP;
+  RETURN TRUE;
+END;
+$$ LANGUAGE plpgsql;

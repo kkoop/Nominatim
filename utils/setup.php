@@ -404,6 +404,10 @@ if ($aCMDResult['load-data'] || $aCMDResult['all']) {
     echo "\n";
     echo "Reanalysing database...\n";
     pgsqlRunScript('ANALYSE');
+    echo "creating names for residential areas...\n";
+    pg_query('SELECT * FROM create_names_for_landuse();');
+//    echo "deleting unnamed landuses...\n";	// very slow
+//    pg_query("DELETE FROM placex WHERE class='landuse' AND type='residential' AND name IS NULL");
 
     $sDatabaseDate = getDatabaseDate($oDB);
     pg_query($oDB->connection, 'TRUNCATE import_status');
