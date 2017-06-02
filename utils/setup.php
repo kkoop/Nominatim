@@ -490,11 +490,11 @@ if ($aCMDResult['calculate-postcodes'] || $aCMDResult['all']) {
     $bDidSomething = true;
     $oDB =& getDB();
     if (!pg_query($oDB->connection, 'DELETE from placex where osm_type=\'P\'')) fail(pg_last_error($oDB->connection));
-    $sSQL = "insert into placex (osm_type,osm_id,class,type,postcode,country_code,geometry) ";
-    $sSQL .= "select 'P',nextval('seq_postcodes'),'place','postcode',postcode,country_code,";
-    $sSQL .= "ST_SetSRID(ST_Point(x,y),4326) as geometry from (select country_code,postcode,";
+    $sSQL = "insert into placex (osm_type,osm_id,class,type,postcode,address,country_code,geometry) ";
+    $sSQL .= "select 'P',nextval('seq_postcodes'),'place','postcode',poco,hstore('postcode',poco),country_code,";
+    $sSQL .= "ST_SetSRID(ST_Point(x,y),4326) as geometry from (select country_code,address->'postcode' as poco,";
     $sSQL .= "avg(st_x(st_centroid(geometry))) as x,avg(st_y(st_centroid(geometry))) as y ";
-    $sSQL .= "from placex where postcode is not null group by country_code,postcode) as x ";
+    $sSQL .= "from placex where address?'postcode' group by country_code,poco) as x ";
     $sSQL .= "where ST_Point(x,y) is not null";
     if (!pg_query($oDB->connection, $sSQL)) fail(pg_last_error($oDB->connection));
 
