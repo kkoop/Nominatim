@@ -2895,7 +2895,7 @@ BEGIN
     RAISE NOTICE 'landuse:residential % contains % (%)', p.lplace_id, p.pplace_id, p.newname[1];
     UPDATE placex SET name=p.newname[1],rank_address=p.new_rank_address,admin_level=p.new_admin_level WHERE place_id=p.lplace_id;
 --    DELETE FROM placex WHERE place_id=p.pplace_id;
-    UPDATE placex SET name=NULL WHERE place_id=p.pplace_id;
+--    UPDATE placex SET name=NULL WHERE place_id=p.pplace_id;
   END LOOP;
   RETURN TRUE;
 END;
